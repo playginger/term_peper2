@@ -7,19 +7,20 @@ import json
 '''
 
 
-def get_last_operations():
-    with open('operations.json', 'r') as f:
-        data = json.load(f)
-
-    operations = [op for op in data if op['state'] == 'EXECUTED']
-    operations = sorted(operations, key=lambda op: op['date'], reverse=True)[:5]
+def get_operations(data):
+    operations = [op for op in data if op.get('state') == 'EXECUTED']
+    operations = sorted(operations, key=lambda op: op.get('date'), reverse=True)[:5]
     for op in operations:
         date = op['date']
         description = op['description']
-        from_ = op['from']
+        from_ = op.get('from', '')
         to = op['to']
-        amount, currency = op['operationAmount'].split()
+        amount = op.get('operationAmount', {}).get('amount')
+        currency = op.get('operationAmount', {}).get('currency', {}).get('name')
         masked_card = from_[:6] + ' XX** **** ' + from_[-4:]
         masked_account = '**' + to[-4:]
 
         print(f'{date} {description}\n{masked_card} -> Счет {masked_account}\n{amount} {currency}\n')
+
+
+
